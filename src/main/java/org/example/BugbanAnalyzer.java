@@ -1,6 +1,7 @@
 package org.example;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -51,7 +52,6 @@ public class BugbanAnalyzer {
   }
 
   private static List<JsonObject> readBugbanOutput(String inputFile) throws IOException {
-    Gson gson = new Gson();
     JsonArray problemsArray = JsonParser.parseReader(new FileReader(inputFile)).getAsJsonObject().getAsJsonArray("problems");
     List<JsonObject> problems = new ArrayList<>();
     for (int i = 0; i < problemsArray.size(); i++) {
@@ -61,6 +61,7 @@ public class BugbanAnalyzer {
   }
 
   private static void writeOutputFile(String outputFile, Set<JsonObject> problems) throws IOException {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
     JsonObject output = new JsonObject();
     JsonArray problemsArray = new JsonArray();
     for (JsonObject problem : problems) {
@@ -68,7 +69,7 @@ public class BugbanAnalyzer {
     }
     output.add("problems", problemsArray);
     try (FileWriter writer = new FileWriter(outputFile)) {
-      writer.write(output.toString());
+      gson.toJson(output, writer);
     }
   }
 }

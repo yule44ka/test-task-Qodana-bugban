@@ -18,7 +18,7 @@ public class BugbanAnalyzer {
 
     System.out.println("Specify paths for first file, second file, "
         + "output for problems only in first file, "
-        + "\noutput for problems only in second file and"
+        + "\noutput for problems only in second file and "
         + "output for problems in both files:");
 
     String firstInputFile = scanner.next();

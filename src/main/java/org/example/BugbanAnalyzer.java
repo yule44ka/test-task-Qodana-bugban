@@ -28,16 +28,16 @@ public class BugbanAnalyzer {
     String outputFileBoth = scanner.next();
 
     try {
-      List<JsonObject> firstProblems = readBugbanOutput(firstInputFile);
-      List<JsonObject> secondProblems = readBugbanOutput(secondInputFile);
+      List<Problem> firstProblems = readBugbanOutput(firstInputFile);
+      List<Problem> secondProblems = readBugbanOutput(secondInputFile);
 
-      Set<JsonObject> onlyInFirst = new HashSet<>(firstProblems);
+      Set<Problem> onlyInFirst = new HashSet<>(firstProblems);
       onlyInFirst.removeAll(secondProblems);
 
-      Set<JsonObject> onlyInSecond = new HashSet<>(secondProblems);
+      Set<Problem> onlyInSecond = new HashSet<>(secondProblems);
       onlyInSecond.removeAll(firstProblems);
 
-      Set<JsonObject> inBoth = new HashSet<>(firstProblems);
+      Set<Problem> inBoth = new HashSet<>(firstProblems);
       inBoth.retainAll(secondProblems);
 
       writeOutputFile(outputFileOnlyFirst, onlyInFirst);
@@ -51,22 +51,50 @@ public class BugbanAnalyzer {
     }
   }
 
-  private static List<JsonObject> readBugbanOutput(String inputFile) throws IOException {
+  /**
+   * Reads Bugban output from the specified input file.
+   *
+   * @param inputFile path to the Bugban output file
+   * @return a list of Problem objects read from the file
+   * @throws IOException if an I/O error occurs while reading the file
+   */
+  private static List<Problem> readBugbanOutput(String inputFile) throws IOException {
     JsonArray problemsArray = JsonParser.parseReader(new FileReader(inputFile)).getAsJsonObject().getAsJsonArray("problems");
-    List<JsonObject> problems = new ArrayList<>();
+    List<Problem> problems = new ArrayList<>();
     for (int i = 0; i < problemsArray.size(); i++) {
-      problems.add(problemsArray.get(i).getAsJsonObject());
+      JsonObject problemObject = problemsArray.get(i).getAsJsonObject();
+      String hash = problemObject.get("hash").getAsString();
+      Set<String> data = new HashSet<>();
+      JsonArray dataArray = problemObject.getAsJsonArray("data");
+      for (int j = 0; j < dataArray.size(); j++) {
+        data.add(dataArray.get(j).getAsString());
+      }
+      problems.add(new Problem(hash, data));
     }
     return problems;
   }
 
-  private static void writeOutputFile(String outputFile, Set<JsonObject> problems) throws IOException {
+  /**
+   * Writes the specified problems to the output file in JSON format.
+   *
+   * @param outputFile path to the output file
+   * @param problems set of Problem objects to be written to the file
+   * @throws IOException if an I/O error occurs while writing to the file
+   */
+  private static void writeOutputFile(String outputFile, Set<Problem> problems) throws IOException {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    JsonObject output = new JsonObject();
     JsonArray problemsArray = new JsonArray();
-    for (JsonObject problem : problems) {
-      problemsArray.add(problem);
+    for (Problem problem : problems) {
+      JsonObject problemObject = new JsonObject();
+      problemObject.addProperty("hash", problem.getHash());
+      JsonArray dataArray = new JsonArray();
+      for (String data : problem.getData()) {
+        dataArray.add(data);
+      }
+      problemObject.add("data", dataArray);
+      problemsArray.add(problemObject);
     }
+    JsonObject output = new JsonObject();
     output.add("problems", problemsArray);
     try (FileWriter writer = new FileWriter(outputFile)) {
       gson.toJson(output, writer);

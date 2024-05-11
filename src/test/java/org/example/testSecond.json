@@ -7,8 +7,8 @@
         "Possible NullPointerException",
         "A.java",
         "10:1:2",
-        "WARNING",
-        "CWE-476"
+        "CWE-476",
+        "WARNING"
       ]
     }
   ]

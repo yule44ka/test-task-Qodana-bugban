@@ -3,11 +3,11 @@
     {
       "hash": "4308iv8",
       "data": [
-        "NullPointerCheck",
         "Possible NullPointerException",
-        "A.java",
         "10:1:2",
+        "A.java",
         "WARNING",
+        "NullPointerCheck",
         "CWE-476"
       ]
     }

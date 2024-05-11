@@ -32,10 +32,10 @@ public class BugbanAnalyzer {
       List<Problem> secondProblems = readBugbanOutput(secondInputFile);
 
       Set<Problem> onlyInFirst = new HashSet<>(firstProblems);
-      onlyInFirst.removeAll(secondProblems);
+      secondProblems.forEach(onlyInFirst::remove);
 
       Set<Problem> onlyInSecond = new HashSet<>(secondProblems);
-      onlyInSecond.removeAll(firstProblems);
+      firstProblems.forEach(onlyInSecond::remove);
 
       Set<Problem> inBoth = new HashSet<>(firstProblems);
       inBoth.retainAll(secondProblems);
@@ -59,7 +59,8 @@ public class BugbanAnalyzer {
    * @throws IOException if an I/O error occurs while reading the file
    */
   private static List<Problem> readBugbanOutput(String inputFile) throws IOException {
-    JsonArray problemsArray = JsonParser.parseReader(new FileReader(inputFile)).getAsJsonObject().getAsJsonArray("problems");
+    JsonArray problemsArray = JsonParser.parseReader(new FileReader(inputFile))
+        .getAsJsonObject().getAsJsonArray("problems");
     List<Problem> problems = new ArrayList<>();
     for (int i = 0; i < problemsArray.size(); i++) {
       JsonObject problemObject = problemsArray.get(i).getAsJsonObject();
@@ -86,9 +87,9 @@ public class BugbanAnalyzer {
     JsonArray problemsArray = new JsonArray();
     for (Problem problem : problems) {
       JsonObject problemObject = new JsonObject();
-      problemObject.addProperty("hash", problem.getHash());
+      problemObject.addProperty("hash", problem.hash());
       JsonArray dataArray = new JsonArray();
-      for (String data : problem.getData()) {
+      for (String data : problem.data()) {
         dataArray.add(data);
       }
       problemObject.add("data", dataArray);
